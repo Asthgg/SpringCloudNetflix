@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>co.edu.eafit</groupId>
 	<artifactId>bank-otp</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>bank-customer</name>
 	<description>Bank OTP</description>
 	<properties>

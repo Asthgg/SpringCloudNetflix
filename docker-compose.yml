@@ -1,0 +1,87 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  eureka:
+    build: eureka-server
+    ports:
+      - "1111:1111"
+
+  api-gateway:
+    build: api-gateway
+    ports:
+      - "80:80"
+    links:
+      - eureka
+  
+  balance:
+    build: bank-balance
+    ports:
+      - "9091:9091"
+    links:
+      - eureka
+    depends_on:
+      - postgress
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgress:5432/bank
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/balance
+
+  customer:
+    build: bank-customer
+    ports:
+      - "9092:9092"
+    links:
+      - eureka
+    depends_on:
+      - postgress
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
+
+  otp:
+    build: bank-otp-service
+    ports:
+      - "9094:9094"
+    links:
+      - eureka
+    depends_on:
+      - postgress
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
+  
+  transaction:
+    build: bank-transaction
+    ports:
+      - "9093:9093"
+    links:
+      - eureka
+    depends_on:
+      - postgress
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
+
+  # user:
+  #   build: users
+  #   ports:
+  #     - "9093:9093"
+  #   links:
+  #     - eureka
+
+  postgress:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"   #if port already in use:  #  sudo lsof -i:5432  sudo kill -9 pid
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=bank 
+    volumes:
+      - db:/var/lib/postgresql/data
+      # - ./postgres/init.sql:/docker-entrypoint-initdb.d
+      # copy the sql script to create tables
+      - ./bank-otp-service/src/main/resources/createDatabase.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./bank-otp-service/src/main/resources/data.sql:/docker-entrypoint-initdb.d/data.sql
+      - ./bank-otp-service/src/main/resources/updateToken.sql:/docker-entrypoint-initdb.d/updateToken.sql
+    
+volumes:
+  db:
+    driver: local
