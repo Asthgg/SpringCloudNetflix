@@ -11,7 +11,7 @@
 	<groupId>co.edu.eafit</groupId>
 	<artifactId>bank-otp</artifactId>
 	<version>0.0.1</version>
-	<name>bank-customer</name>
+	<name>bank-otp</name>
 	<description>Bank OTP</description>
 	<properties>
 		<java.version>11</java.version>

@@ -36,6 +36,7 @@ services:
       - postgress
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bank
 
   otp:
     build: bank-otp-service
@@ -47,6 +48,9 @@ services:
       - postgres
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bank
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
   
   transaction:
     build: bank-transaction
@@ -54,11 +58,19 @@ services:
       - "9093:9093"
     links:
       - eureka
+
     depends_on:
       - postgres
+      - otp
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bank
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - OTP_SERVICE_URL=otp:9094/api/v1/otp
 
+# docker-compose rm -s -v transaction
+# docker-compose up -d transaction
   # user:
   #   build: users
   #   ports:
@@ -82,7 +94,7 @@ services:
       - ./bank-otp-service/src/main/resources/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
       - ./bank-otp-service/src/main/resources/data.sql:/docker-entrypoint-initdb.d/data.sql
       - ./bank-otp-service/src/main/resources/updateToken.sql:/docker-entrypoint-initdb.d/updateToken.sql
-    
+
 volumes:
   db:
     driver: local

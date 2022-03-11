@@ -90,6 +90,7 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
 	 */
 	private ResponseEntity<Object> getExceptionResponseEntity(final Exception exception, final HttpStatus status,
 			final WebRequest request, final List<String> errors) {
+				System.out.print(exception);
 		final Map<String, Object> body = new LinkedHashMap<>();
 		final String path = request.getDescription(false);
 		body.put(TIMESTAMP, Instant.now());
