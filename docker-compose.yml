@@ -26,26 +26,29 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
 
-  customer:
-    build: bank-customer
-    ports:
-      - "9092:9092"
-    links:
-      - eureka
-    depends_on:
-      - postgress
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bank
+  # customer:
+  #   build: bank-customer
+  #   ports:
+  #     - "9092:9092"
+  #   links:
+  #     - eureka
+  #   depends_on:
+  #     - postgress
+  #   environment:
+  #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bank
 
   otp:
     build: bank-otp-service
     ports:
-      - "9094:9094"
+      - "9094"
     links:
       - eureka
     depends_on:
       - postgres
+    # deploy:
+    #   mode: replicated
+    #   replicas: 4
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bank
@@ -58,17 +61,15 @@ services:
       - "9093:9093"
     links:
       - eureka
-
     depends_on:
       - postgres
-      - otp
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:1111/eureka
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bank
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - OTP_SERVICE_URL=otp:9094/api/v1/otp
-
+      # - OTP_SERVICE_URL=otp:9094/api/v1/otp
+# docker-compose up -d otp --scale otp=4
 # docker-compose rm -s -v transaction
 # docker-compose up -d transaction
   # user:
